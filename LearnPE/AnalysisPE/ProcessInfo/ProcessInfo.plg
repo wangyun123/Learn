@@ -1,0 +1,59 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: ProcessInfo - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /FR"Debug/" /Fp"Debug/ProcessInfo.pch" /Yu"stdafx.h" /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"D:\code\PEparse\test\ProcessInfo\ProcessInfo.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPA.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/ProcessInfo.pdb" /debug /machine:I386 /out:"Debug/ProcessInfo.exe" /pdbtype:sept 
+.\Debug\ProcessInfo.obj
+.\Debug\StdAfx.obj
+.\Debug\resource.res
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSPB.tmp"
+<h3>Output Window</h3>
+Compiling...
+ProcessInfo.cpp
+d:\code\peparse\test\commonfiles\cmnhdr.h(18) : warning C4005: 'WINVER' : macro redefinition
+        c:\program files\microsoft visual studio\vc98\include\windows.h(22) : see previous definition of 'WINVER'
+You are not using the latest Platform SDK header/library 
+files. This may prevent the project from building correctly.
+d:\code\peparse\test\commonfiles\cmnhdr.h(199) : error C2065: '_countof' : undeclared identifier
+d:\code\peparse\test\commonfiles\cmnhdr.h(254) : error C2065: 'GetWindowLongPtr' : undeclared identifier
+d:\code\peparse\test\commonfiles\cmnhdr.h(254) : error C2065: 'GWLP_HINSTANCE' : undeclared identifier
+d:\code\peparse\test\commonfiles\toolhelp.h(58) : error C2061: syntax error : identifier 'PCTSTR'
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2065: 'PCTSTR' : undeclared identifier
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2146: syntax error : missing ')' before identifier 'szPrivilege'
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2433: 'EnablePrivilege' : 'inline' not permitted on data declarations
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2350: 'CToolhelp::EnablePrivilege' is not a static member
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2059: syntax error : ')'
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2143: syntax error : missing ';' before '{'
+d:\code\peparse\test\commonfiles\toolhelp.h(104) : error C2447: missing function header (old-style formal list?)
+d:\code\peparse\test\commonfiles\toolhelp.h(201) : error C2664: 'lstrcmpiA' : cannot convert parameter 1 from 'unsigned short [256]' to 'const char *'
+        Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+d:\code\peparse\test\commonfiles\toolhelp.h(202) : error C2664: 'lstrcmpiA' : cannot convert parameter 1 from 'unsigned short [260]' to 'const char *'
+        Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or function-style cast
+D:\code\PEparse\test\ProcessInfo\ProcessInfo.cpp(14) : fatal error C1083: Cannot open include file: 'winternl.h': No such file or directory
+Error executing cl.exe.
+Creating command line "bscmake.exe /nologo /o"Debug/ProcessInfo.bsc"  .\Debug\StdAfx.sbr .\Debug\ProcessInfo.sbr"
+Creating browse info file...
+BSCMAKE: error BK1506 : cannot open file '.\Debug\ProcessInfo.sbr': No such file or directory
+Error executing bscmake.exe.
+<h3>Output Window</h3>
+
+
+
+<h3>Results</h3>
+ProcessInfo.exe - 15 error(s), 1 warning(s)
+</pre>
+</body>
+</html>

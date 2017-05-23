@@ -1,0 +1,10 @@
+; library02.def
+
+LIBRARY	"library02"
+;DESCRIPTION 'library02 windows dynamic link library'
+
+EXPORTS
+	func1=add2
+	sub2
+	mul2
+	div2
