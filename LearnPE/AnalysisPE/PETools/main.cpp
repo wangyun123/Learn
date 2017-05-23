@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include "Globle.h"
 
-#define FILEPATH "d:\\FeiQ.exe"
-#define FILEPATHNEW "d:\\FeiQ_new.exe"
+#define FILEPATH "c:\\FeiQ.exe"
+#define FILEPATHNEW "c:\\FeiQ_new.exe"
 
 int main(int argc, char* argv[])
 {

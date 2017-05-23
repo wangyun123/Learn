@@ -238,6 +238,58 @@ BOOL MemeryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPSTR lpszFile)
 // 返回值: 0是返回失败, 否则返回文件偏移
 DWORD RvaToFileOffset(IN LPVOID pFileBuffer, IN DWORD dwRva)
 {
+	PIMAGE_DOS_HEADER		pDosHeader = NULL;
+	PIMAGE_NT_HEADERS		pNTHeader = NULL;
+	PIMAGE_FILE_HEADER		pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER  pOptionalHeader = NULL;
+	PIMAGE_SECTION_HEADER   pSectionHeader = NULL;
+	
+	if (pFileBuffer == NULL)
+	{
+		perror("the file buffer error!\n");
+		return 0;
+	}
+	
+	// 解析PE文件
+	// dos header
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+	
+	// nt header
+	pNTHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer+pDosHeader->e_lfanew);
+	
+	// file header
+	pPEHeader = (PIMAGE_FILE_HEADER)(&pNTHeader->FileHeader);
+	
+	// optional header
+	pOptionalHeader = (PIMAGE_OPTIONAL_HEADER)(&pNTHeader->OptionalHeader);
+	
+	// section table
+	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pNTHeader+sizeof(IMAGE_NT_HEADERS));
+	PIMAGE_SECTION_HEADER pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
+
+	//
+	if (dwRva > pOptionalHeader->SizeOfImage)
+	{
+		printf("virtual address large than the SizeofImage!\n");
+		return 0;
+	}
+
+	if (dwRva < pOptionalHeader->SizeOfHeaders)
+	{
+		printf("location is the sizeofheaders\n");
+		return dwRva;
+	}
+
+	for (int i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
+	{
+		if (dwRva > pTmpSectionHeader->VirtualAddress &&
+			dwRva < pTmpSectionHeader->VirtualAddress + pTmpSectionHeader->SizeOfRawData)
+		{
+			return (dwRva / pOptionalHeader->SectionAlignment)*pOptionalHeader->FileAlignment 
+				+ dwRva % pOptionalHeader->SectionAlignment;
+		}
+	}
+
 	return 0;
 }
 
