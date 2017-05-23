@@ -8,3 +8,4 @@
 /LearnPE/AnalysisPE/testThread1/Debug
 debug/
 release/
+*.idb

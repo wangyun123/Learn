@@ -9,6 +9,7 @@
 // ? 疑问 为什么用LPVOID*类型?
 DWORD ReadPEFile(IN LPSTR lpszFile, OUT LPVOID* pFileBuffer)
 {
+	printf("**************ReadPEFile****************\n");
 	FILE* pFile = NULL;
 	pFile = fopen(lpszFile, "rb");
 	if (pFile == NULL)
@@ -58,6 +59,8 @@ DWORD ReadPEFile(IN LPSTR lpszFile, OUT LPVOID* pFileBuffer)
 // 返回值: 0是返回失败, 否则返回复制大小
 DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffer)
 {
+	printf("**************CopyFileBufferToImageBuffer****************\n");
+
 	PIMAGE_DOS_HEADER		pDosHeader = NULL;
 	PIMAGE_NT_HEADERS		pNTHeader = NULL;
 	PIMAGE_FILE_HEADER		pPEHeader = NULL;
@@ -72,6 +75,7 @@ DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffe
 		return 0;
 	}
 
+	// 解析PE文件
 	// dos header
 	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
 	PrintDosHeader(pDosHeader);
@@ -93,11 +97,37 @@ DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffe
 	PIMAGE_SECTION_HEADER pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
 	for (int i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
 	{
-		printf("Section [%d]\n", i);
+		printf("Section Table [%d]\n", i);
 		PrintSectionHeader(pTmpSectionHeader);
 	}
 
-	return 0;
+	// imageBuffer分配多大空间?
+	DWORD dwSizeImageBuffer = pOptionalHeader->SizeOfImage;
+	pTmpImageBuffer = malloc(dwSizeImageBuffer);
+	if (pTmpImageBuffer == NULL)
+	{
+		printf("can't malloc the memory!\n");
+		return 0;
+	}
+	memset(pTmpImageBuffer, 0, dwSizeImageBuffer*sizeof(char));
+
+	// copy the SizeOfHeaders
+	memcpy(pTmpImageBuffer, pFileBuffer, pOptionalHeader->SizeOfHeaders*sizeof(char));
+
+	// copy the section table
+	pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
+	for (i=0; i < pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
+	{
+		// fileImage position: PointerToRawData
+		// fileImage size: SizeOfRawData
+		memcpy(LPVOID((DWORD)pTmpImageBuffer+pTmpSectionHeader->VirtualAddress), 
+			LPVOID((DWORD)pFileBuffer+pTmpSectionHeader->PointerToRawData),
+			pTmpSectionHeader->SizeOfRawData);
+	}
+
+	*pImageBuffer = pTmpImageBuffer;
+	pTmpImageBuffer = NULL;
+	return dwSizeImageBuffer;
 }
 
 // [3] imageBuffer -> new fileBuffer
@@ -107,7 +137,73 @@ DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffe
 // 返回值: 0是返回失败, 否则返回复制大小
 DWORD CopyImageBufferToNewBuffer(IN LPVOID pImageBuffer, OUT LPVOID* pNewBuffer)
 {
-	return 0;
+	printf("**************CopyImageBufferToNewBuffer****************\n");
+
+	PIMAGE_DOS_HEADER		pDosHeader = NULL;
+	PIMAGE_NT_HEADERS		pNTHeader = NULL;
+	PIMAGE_FILE_HEADER		pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER  pOptionalHeader = NULL;
+	PIMAGE_SECTION_HEADER   pSectionHeader = NULL;
+
+	if (pImageBuffer == NULL)
+	{
+		perror("the image buffer error!\n");
+		return 0;
+	}
+	
+	// 解析PE文件
+	// dos header
+	pDosHeader = (PIMAGE_DOS_HEADER)pImageBuffer;
+	PrintDosHeader(pDosHeader);
+	
+	// nt header
+	pNTHeader = (PIMAGE_NT_HEADERS)((DWORD)pImageBuffer+pDosHeader->e_lfanew);
+	PrintNTHeader(pNTHeader);
+	
+	// file header
+	pPEHeader = (PIMAGE_FILE_HEADER)(&pNTHeader->FileHeader);
+	PrintFileHeader(pPEHeader);
+	
+	// optional header
+	pOptionalHeader = (PIMAGE_OPTIONAL_HEADER)(&pNTHeader->OptionalHeader);
+	PrintOptionalHeader(pOptionalHeader);
+	
+	// section table
+	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pNTHeader+sizeof(IMAGE_NT_HEADERS));
+	PIMAGE_SECTION_HEADER pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
+	for (int i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
+	{
+		printf("Section Table [%d]\n", i);
+		PrintSectionHeader(pTmpSectionHeader);
+	}
+
+	LPVOID pTmpFileBuffer = NULL;
+	pTmpSectionHeader --;
+	DWORD dwSizeFileBuffer = pTmpSectionHeader->PointerToRawData + pTmpSectionHeader->SizeOfRawData;
+	pTmpFileBuffer = malloc(dwSizeFileBuffer);
+	if (pTmpFileBuffer == NULL)
+	{
+		printf("can't malloc the memory!\n");
+		return 0;
+	}
+
+	memset(pTmpFileBuffer, 0, dwSizeFileBuffer*sizeof(char));
+
+	// copy the headers
+	memcpy(pTmpFileBuffer, pImageBuffer, pOptionalHeader->SizeOfHeaders);
+
+	// copy the section table
+	pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
+	for (i=0; i < pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
+	{
+		memcpy(LPVOID((DWORD)pTmpFileBuffer+pTmpSectionHeader->PointerToRawData), 
+			LPVOID((DWORD)pImageBuffer+pTmpSectionHeader->VirtualAddress),
+			pTmpSectionHeader->SizeOfRawData);
+	}
+
+	*pNewBuffer = pTmpFileBuffer;
+	pTmpFileBuffer = NULL;
+	return dwSizeFileBuffer;
 }
 
 // [4] fileBuffer -> file
@@ -118,7 +214,21 @@ DWORD CopyImageBufferToNewBuffer(IN LPVOID pImageBuffer, OUT LPVOID* pNewBuffer)
 // 返回值: 0是返回失败
 BOOL MemeryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPSTR lpszFile)
 {
-	return 0;
+	FILE* pFile = NULL;
+	pFile = fopen(lpszFile, "wb");
+
+	if (pFile == NULL)
+	{
+		printf("can't write the file %s\n", lpszFile);
+		fclose(pFile);
+		return FALSE;
+	}
+
+	fwrite(pMemBuffer, sizeof(char), size, pFile);
+
+	fclose(pFile);
+
+	return TRUE;
 }
 
 // [5] Relation Virtual Address -> File Offset Address
