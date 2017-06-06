@@ -1,0 +1,6 @@
+EXPORTS
+
+	add @ 1
+	sub @ 2
+	mul @ 3 NONAME
+	func1=div @ 4

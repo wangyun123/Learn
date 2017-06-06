@@ -65,6 +65,7 @@ DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffe
 	PIMAGE_NT_HEADERS		pNTHeader = NULL;
 	PIMAGE_FILE_HEADER		pPEHeader = NULL;
 	PIMAGE_OPTIONAL_HEADER  pOptionalHeader = NULL;
+	PIMAGE_DATA_DIRECTORY	pDataDirectory = NULL;
 	PIMAGE_SECTION_HEADER   pSectionHeader = NULL;
 
 	LPVOID pTmpImageBuffer = NULL;
@@ -92,10 +93,24 @@ DWORD CopyFileBufferToImageBuffer(IN LPVOID pFileBuffer, OUT LPVOID* pImageBuffe
 	pOptionalHeader = (PIMAGE_OPTIONAL_HEADER)(&pNTHeader->OptionalHeader);
 	PrintOptionalHeader(pOptionalHeader);
 
+	// image data directory
+	pDataDirectory = (PIMAGE_DATA_DIRECTORY)pOptionalHeader->DataDirectory;
+	PIMAGE_DATA_DIRECTORY pTmpDataDirectory = pDataDirectory;
+	for (int i=0; i<IMAGE_NUMBEROF_DIRECTORY_ENTRIES; i++,pTmpDataDirectory++)
+	{
+		printf("Data Directory [%d]\n", i);
+		PrintImageDataDirectory(pTmpDataDirectory);
+	}
+	// export table
+	pTmpDataDirectory = pDataDirectory;
+	printf("********RVA of PIMAGE_EXPORT_DIRECTORY:\t\t%x \n",    pTmpDataDirectory->VirtualAddress);
+	PIMAGE_EXPORT_DIRECTORY pExportTable = (PIMAGE_EXPORT_DIRECTORY)((DWORD)pTmpDataDirectory->VirtualAddress+(DWORD)pFileBuffer);
+	PrintDirectoryOfExportTable(pExportTable);
+
 	// section table
 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pNTHeader+sizeof(IMAGE_NT_HEADERS));
 	PIMAGE_SECTION_HEADER pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
-	for (int i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
+	for (i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
 	{
 		printf("Section Table [%d]\n", i);
 		PrintSectionHeader(pTmpSectionHeader);
@@ -220,7 +235,6 @@ BOOL MemeryToFile(IN LPVOID pMemBuffer, IN size_t size, OUT LPSTR lpszFile)
 	if (pFile == NULL)
 	{
 		printf("can't write the file %s\n", lpszFile);
-		fclose(pFile);
 		return FALSE;
 	}
 
@@ -400,6 +414,30 @@ void PrintOptionalHeader(PIMAGE_OPTIONAL_HEADER pOptionHeader)
 	
 	printf("the size of PIMAGE_OPTIONAL_HEADER is : %x h\n", sizeof(IMAGE_OPTIONAL_HEADER));
 
+}
+
+// print the image data directory
+void PrintImageDataDirectory(PIMAGE_DATA_DIRECTORY pDataDirectory)
+{
+	printf("    VirtualAddress:\t\t%x \n", pDataDirectory->VirtualAddress);
+	printf("    Size:\t\t\t\t%d \n", pDataDirectory->Size);
+}
+
+// printf the export table [0]
+void PrintDirectoryOfExportTable(PIMAGE_EXPORT_DIRECTORY pExportTable)
+{
+// 	printf("********RVA of PIMAGE_EXPORT_DIRECTORY:\t\t%x \n",    pExportTable);
+	printf("    Characteristics:\t\t%x \n",    pExportTable->Characteristics);
+    printf("    TimeDateStamp:\t\t%x \n",    pExportTable->TimeDateStamp);
+    printf("    MajorVersion:\t\t%x \n",    pExportTable->MajorVersion);
+    printf("    MinorVersion:\t\t%x \n",    pExportTable->MinorVersion);
+    printf("    Name:\t\t%x \n",    pExportTable->Name);
+    printf("    Base:\t\t%x \n",    pExportTable->Base);
+    printf("    NumberOfFunctions:\t\t%x \n",    pExportTable->NumberOfFunctions);
+    printf("    NumberOfNames:\t\t%x \n",    pExportTable->NumberOfNames);
+    printf("    AddressOfFunctions:\t\t%x \n",    pExportTable->AddressOfFunctions);     // RVA from base of image
+    printf("    AddressOfNames:\t\t%x \n",    pExportTable->AddressOfNames);         // RVA from base of image
+    printf("    AddressOfNameOrdinals:\t\t%x \n",    pExportTable->AddressOfNameOrdinals);  // RVA from base of image
 }
 
 void PrintSectionHeader(PIMAGE_SECTION_HEADER pSectionHeader)

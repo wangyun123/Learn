@@ -51,6 +51,12 @@ void PrintFileHeader(PIMAGE_FILE_HEADER pPEHeader);
 // print the optional header
 void PrintOptionalHeader(PIMAGE_OPTIONAL_HEADER pOptionHeader);
 
+// print all the image data directory
+void PrintImageDataDirectory(PIMAGE_DATA_DIRECTORY pDataDirectory);
+
+// printf the export table [0]
+void PrintDirectoryOfExportTable(PIMAGE_EXPORT_DIRECTORY pExportTable);
+
 //print the section header
 void PrintSectionHeader(PIMAGE_SECTION_HEADER pSectionHeader);
 

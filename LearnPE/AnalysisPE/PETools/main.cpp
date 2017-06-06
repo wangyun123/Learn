@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "Globle.h"
 
-#define FILEPATH "c:\\FeiQ.exe"
+// #define FILEPATH "c:\\FeiQ.exe"
+#define FILEPATH "C:\\Code\\Learn\\LearnLibrary\\test\\DynLibrary3\\Debug\\DynLibrary3.dll"
 #define FILEPATHNEW "c:\\FeiQ_new.exe"
 
 int main(int argc, char* argv[])
@@ -13,10 +14,10 @@ int main(int argc, char* argv[])
 	LPVOID pImageBuffer = NULL;
 	CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
 
-	LPVOID pNewBuffer = NULL;
-	DWORD dwSizeFile = CopyImageBufferToNewBuffer(pImageBuffer, &pNewBuffer);
-
-	MemeryToFile(pNewBuffer, dwSizeFile, FILEPATHNEW);
+// 	LPVOID pNewBuffer = NULL;
+// 	DWORD dwSizeFile = CopyImageBufferToNewBuffer(pImageBuffer, &pNewBuffer);
+// 
+// 	MemeryToFile(pNewBuffer, dwSizeFile, FILEPATHNEW);
 
 // 	LPVOID pNewBuffer = NULL;
 	
