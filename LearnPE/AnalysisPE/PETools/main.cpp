@@ -2,7 +2,9 @@
 #include "Globle.h"
 
 // #define FILEPATH "c:\\FeiQ.exe"
-#define FILEPATH "C:\\Code\\Learn\\LearnLibrary\\test\\DynLibrary3\\Debug\\DynLibrary3.dll"
+// #define FILEPATH "d:\\Code\\LearnLibrary\\test\\DynLibrary2\\Debug\\DynLibrary2.dll"
+// #define FILEPATH "d:\\Code\\LearnLibrary\\test\\DynLibrary2\\Debug\\OllyICE.exe"
+#define FILEPATH "C:\\Code\\Learn\\LearnPE\\AnalysisPE\\PETools\\Debug\\OllyICE.exe"
 #define FILEPATHNEW "c:\\FeiQ_new.exe"
 
 int main(int argc, char* argv[])
@@ -10,9 +12,11 @@ int main(int argc, char* argv[])
 
 	LPVOID pFileBuffer = NULL;
 	ReadPEFile(FILEPATH, &pFileBuffer);
+	ParseFileBuffer(pFileBuffer);
+	free(pFileBuffer);
 
-	LPVOID pImageBuffer = NULL;
-	CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
+// 	LPVOID pImageBuffer = NULL;
+// 	CopyFileBufferToImageBuffer(pFileBuffer, &pImageBuffer);
 
 // 	LPVOID pNewBuffer = NULL;
 // 	DWORD dwSizeFile = CopyImageBufferToNewBuffer(pImageBuffer, &pNewBuffer);

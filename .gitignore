@@ -9,3 +9,6 @@
 debug/
 release/
 *.idb
+*.plg
+*.ncb
+*.opt
