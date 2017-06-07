@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-// #define STATIC_LOAD_LIBRARY
+#define STATIC_LOAD_LIBRARY
 
 #ifdef STATIC_LOAD_LIBRARY
 #include "../DynLibrary3/func3.h"
