@@ -10,6 +10,7 @@
 DWORD ReadPEFile(IN LPSTR lpszFile, OUT LPVOID* pFileBuffer)
 {
 	printf("**************ReadPEFile****************\n");
+	printf("*****the file path: %s\n", lpszFile);
 	FILE* pFile = NULL;
 	pFile = fopen(lpszFile, "rb");
 	if (pFile == NULL)
@@ -50,6 +51,91 @@ DWORD ReadPEFile(IN LPSTR lpszFile, OUT LPVOID* pFileBuffer)
 	fclose(pFile);
 
  	return nSize;
+}
+
+// 解析文件缓存
+void ParseFileBuffer(IN LPVOID pFileBuffer)
+{
+	PIMAGE_DOS_HEADER		pDosHeader = NULL;
+	PIMAGE_NT_HEADERS		pNTHeader = NULL;
+	PIMAGE_FILE_HEADER		pPEHeader = NULL;
+	PIMAGE_OPTIONAL_HEADER  pOptionalHeader = NULL;
+	PIMAGE_DATA_DIRECTORY	pDataDirectory = NULL;
+	PIMAGE_SECTION_HEADER   pSectionHeader = NULL;
+	
+	if (pFileBuffer == NULL)
+	{
+		perror("the file buffer error!\n");
+		return ;
+	}
+	
+	// 解析PE文件
+	// dos header
+	pDosHeader = (PIMAGE_DOS_HEADER)pFileBuffer;
+// 	PrintDosHeader(pDosHeader);
+	
+	// nt header
+	pNTHeader = (PIMAGE_NT_HEADERS)((DWORD)pFileBuffer+pDosHeader->e_lfanew);
+// 	PrintNTHeader(pNTHeader);
+	
+	// file header
+	pPEHeader = (PIMAGE_FILE_HEADER)(&pNTHeader->FileHeader);
+// 	PrintFileHeader(pPEHeader);
+	
+	// optional header
+	pOptionalHeader = (PIMAGE_OPTIONAL_HEADER)(&pNTHeader->OptionalHeader);
+// 	PrintOptionalHeader(pOptionalHeader);
+	
+	// image data directory
+	pDataDirectory = (PIMAGE_DATA_DIRECTORY)pOptionalHeader->DataDirectory;
+	PIMAGE_DATA_DIRECTORY pTmpDataDirectory = pDataDirectory;
+	printf("**************IMAGE_DATA_DIRECTORY****************\n");
+	for (int i=0; i<IMAGE_NUMBEROF_DIRECTORY_ENTRIES; i++,pTmpDataDirectory++)
+	{
+		printf("Data Directory [%d]\n", i);
+		PrintImageDataDirectory(pTmpDataDirectory);
+	}
+	// export table
+	pTmpDataDirectory = pDataDirectory;
+	printf("**************PIMAGE_EXPORT_DIRECTORY****************\n");
+	DWORD dwRVA = (DWORD)pTmpDataDirectory->VirtualAddress;
+	DWORD dwFOA = RvaToFileOffset(pFileBuffer, dwRVA);
+	printf("*****RVA :\t\t%x \n", dwRVA);
+	PIMAGE_EXPORT_DIRECTORY pExportTable = (PIMAGE_EXPORT_DIRECTORY)(dwFOA+(DWORD)pFileBuffer);
+	PrintDirectoryOfExportTable(pExportTable);
+
+#if 1
+	// [1]
+	DWORD dwFoaName = RvaToFileOffset(pFileBuffer, (DWORD)pExportTable->Name);
+	char* pName = (char*)(dwFoaName+(DWORD)pFileBuffer);
+	printf("[*] The Name of DynLibrary2.dll: %s\n", pName);
+	// [2]
+	DWORD dwFoaAddressOfFunc = RvaToFileOffset(pFileBuffer, (DWORD)pExportTable->AddressOfFunctions);
+	DWORD* pAddressOfFunc = (DWORD*)(dwFoaAddressOfFunc+(DWORD)pFileBuffer);
+	printf("[*] AddressOfFunctions: \n");
+	for (DWORD j=0; j < pExportTable->NumberOfFunctions; j++, pAddressOfFunc++)
+		printf("\t[%d] : %x\n", j, *pAddressOfFunc);
+	// [3]
+	DWORD dwFoaAddressOfName = RvaToFileOffset(pFileBuffer, (DWORD)pExportTable->AddressOfNames);
+	DWORD* pAddressOfName = (DWORD*)(dwFoaAddressOfName+(DWORD)pFileBuffer);
+	printf("[*] AddressOfNames: \n");
+	for ( j=0; j < pExportTable->NumberOfNames; j++, pAddressOfName++)
+		printf("\t[%d] : %x , %s\n", j, *pAddressOfName, (char*)(RvaToFileOffset(pFileBuffer,(DWORD)(*pAddressOfName))+(DWORD)pFileBuffer));
+	// [4]
+	DWORD dwFoaAddressOfOrdinal = RvaToFileOffset(pFileBuffer, (DWORD)pExportTable->AddressOfNameOrdinals);
+	WORD* pAddressOfOrdinal = (WORD*)(dwFoaAddressOfOrdinal+(DWORD)pFileBuffer);
+	printf("[*] AddressOfNameOrdinals: \n");
+	for ( j=0; j < pExportTable->NumberOfNames; j++, pAddressOfOrdinal++)
+		printf("\t[%d] : %x\n", j, *pAddressOfOrdinal);
+#endif
+	// section table
+// 	pSectionHeader = (PIMAGE_SECTION_HEADER)((DWORD)pNTHeader+sizeof(IMAGE_NT_HEADERS));
+// 	PIMAGE_SECTION_HEADER pTmpSectionHeader = (PIMAGE_SECTION_HEADER)pSectionHeader;
+// 	for (i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
+// 	{
+// 		printf("Section Table [%d]\n", i);
+// 		PrintSectionHeader(pTmpSectionHeader);
+// 	}
 }
 
 // [2] fileBuffer -> imageBuffer
@@ -296,11 +382,13 @@ DWORD RvaToFileOffset(IN LPVOID pFileBuffer, IN DWORD dwRva)
 
 	for (int i=0; i< pPEHeader->NumberOfSections; i++, pTmpSectionHeader++)
 	{
-		if (dwRva > pTmpSectionHeader->VirtualAddress &&
-			dwRva < pTmpSectionHeader->VirtualAddress + pTmpSectionHeader->SizeOfRawData)
+		DWORD begin = pTmpSectionHeader->VirtualAddress;
+		DWORD end = pTmpSectionHeader->VirtualAddress+pTmpSectionHeader->Misc.VirtualSize;
+		if (dwRva >= begin && dwRva < end)
 		{
-			return (dwRva / pOptionalHeader->SectionAlignment)*pOptionalHeader->FileAlignment 
-				+ dwRva % pOptionalHeader->SectionAlignment;
+// 			printf("RVA: %x\t", dwRva);
+// 			printf("section %d:\t [%x-%x]\n", i, begin, end);
+			return pTmpSectionHeader->PointerToRawData+dwRva-begin;
 		}
 	}
 

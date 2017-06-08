@@ -9,6 +9,8 @@
 // pFileBuffer:	文件缓存
 // 返回值: 0是返回失败, 否则返回实际读取大小
 DWORD ReadPEFile(IN LPSTR lpszFile, OUT LPVOID* pFileBuffer);
+// 解析文件缓存
+void ParseFileBuffer(IN LPVOID pFileBuffer);
 
 // [2] fileBuffer -> imageBuffer
 // 将文件缓存pFileBuffer复制到pImageBuffer映像缓存
