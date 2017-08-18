@@ -1,0 +1,5 @@
+LIBRARY "library1"
+
+EXPORTS
+	add1 @1
+	sub1 @2

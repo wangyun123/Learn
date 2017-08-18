@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "cDynLib"=.\cDynLib\cDynLib.dsp - Package Owner=<4>
+Project: "library1"=.\library1\library1.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -15,7 +15,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "clib"=.\clib\clib.dsp - Package Owner=<4>
+Project: "library2"=.\library2\library2.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -27,7 +27,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "cppDynLib"=.\cppDynLib\cppDynLib.dsp - Package Owner=<4>
+Project: "library3"=.\library3\library3.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -39,7 +39,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "cpplib"=.\cpplib\cpplib.dsp - Package Owner=<4>
+Project: "library4"=.\library4\library4.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -51,43 +51,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "test01"=.\test01.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "test02"=.\test02\test02.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "testStaticLib"=.\testStaticLib\testStaticLib.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "testStaticLib2"=.\testStaticLib2\testStaticLib2.dsp - Package Owner=<4>
+Project: "test01"=.\test01\test01.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -1,0 +1,6 @@
+LIBRARY library3
+
+EXPORTS
+	func1=?func@@YAHH@Z
+	func2=?func@@YAHHH@Z
+	func3=?func@@YAHHHH@Z
