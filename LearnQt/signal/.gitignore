@@ -1,0 +1,8 @@
+/test01-build-Qt4_8_7-Debug/
+ipch/
+*.pro.user
+*.opensdf
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sdf
